@@ -28,7 +28,7 @@ ds_combined <- bind_rows(ds1, ds2, ds3)
 #Make your repository public and paste the link here:
 
 #ANSWER
-#YOUR GITHUB LINK: 
+#YOUR GITHUB LINK: https://github.com/emilye7/259-tidying-automation-homework
 
 ### Question 2 ---------- 
 
