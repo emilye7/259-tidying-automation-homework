@@ -28,7 +28,7 @@ ds_combined <- bind_rows(ds1, ds2, ds3)
 #Make your repository public and paste the link here:
 
 #ANSWER
-#YOUR GITHUB LINK: 
+#YOUR GITHUB LINK: https://github.com/emilye7/259-tidying-automation-homework
 
 ### Question 2 ---------- 
 
@@ -36,16 +36,33 @@ ds_combined <- bind_rows(ds1, ds2, ds3)
 #(Yes, Vroom does this automatically but practice doing it with a loop)
 #If you did this correctly, it should look the same as ds_combined created above
 
+#ANSWER
+ds <- read_csv(paths[1])
+ds <- ds %>% filter(FALSE)
+
+#Loop through file names
+for (file in paths) {
+  temp_ds <- read_csv(file)
+  ds <- bind_rows(ds, temp_ds)
+}
+ds_loop <- ds
+
 ### Question 3 ----------
 
 #Use map with paths to read in the data to a single tibble called ds_map
 #If you did this correctly, it should look the same as ds_combined created above
+
+#ANSWER
+ds_map <- map_dfr(paths, ~ read_csv(.x) %>% mutate(file = .x))
 
 ### Question 4 ----------
 
 #The data are in a wider-than-ideal format. 
 #Use pivot_longer to reshape the data so that sex is a column with values male/female and words is a column
 #Use ds_combined or one of the ones you created in Question 2 or 3, and save the output to ds_longer
+
+#ANSWER
+ds_longer <- pivot_longer(ds_combined,cols=c("Female","Male"),names_to="Sex",values_to="Words")
 
 ### Question 5 ----------
 
@@ -54,6 +71,12 @@ ds_combined <- bind_rows(ds1, ds2, ds3)
 #Merge it into ds_longer and then create a new column that expresses the words spoken as a percentage of the total
 total_words <- tibble(Film =  c("The Fellowship Of The Ring", "The Two Towers","The Return Of The King"),
                       Total = c(177277, 143436, 134462))
+
+#ANSWER
+ds_longer <- merge(ds_longer,total_words, by = "Film", all.x=TRUE, all.y=TRUE)
+ds_longer$percentWords <- NA
+
+ds_longer$percentWords <- (ds_longer$Words/ds_longer$Total)
 
 ### Question 6 ----------
 #The function below creates a graph to compare the words spoken by race/sex for a single film
@@ -67,10 +90,21 @@ words_graph <- function(df) {
   print(p)
 }
 
+words_graph(ds_longer)
+
+films <- c("The Fellowship Of The Ring", "The Two Towers","The Return Of The King")
+for(films in ds_longer){
+  words_graph(ds_longer)
+}
+
 ### Question 7 ----------
 
 #Apply the words_graph function again, but this time
 #use split and map to apply the function to each film separately
+
+#ANSWER
+ds_film <- split(ds_longer, ds_longer$Film)
+map(ds_film, ~ words_graph(.x))
 
 ### Question 8 ---------- 
 
@@ -78,6 +112,13 @@ words_graph <- function(df) {
 #and separate columns for the words spoken by each race and the percentage of words spoken by each race
 #First, get the data formatted in the correct way
 #From ds_longer, create a new tibble "ds_wider" that has columns for words for each race and percentage for each race
+
+#ANSWER
+ds_wider <- pivot_wider(ds_longer,id_cols=!"percentWords",names_from="Race",values_from="Words")
+
+ds_wider$elfPerc <- (ds_wider$Elf/ds_wider$Total)
+ds_wider$hobbPerc <- (ds_wider$Hobbit/ds_wider$Total)
+ds_wider$manPerc <- (ds_wider$Man/ds_wider$Total)
 
 ### Question 9 ---------
 
